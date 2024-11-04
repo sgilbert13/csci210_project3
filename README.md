@@ -15,7 +15,11 @@ You are working for a company that hires interns regularly and develops software
 11: exit  
 12: help  
 
-The *help* command should print the list of commands as their appear above. The first 9 commands are programs that you are going to **spawn** as separate processes using the **posix_spawnp()** system call. An example program that spawns an echo command is provided in the repository: myspawn.c. By using this example program, you are going to write your own shell interpreter that can execute the commands above. Commands 10, 11, and 12 can be considered as built-in shell commands, which will **not** spawn a separate process. The handling of commands 11 and 12 by your program is trivial: return from the main function and print a list of commands, respectively. For the "cd" command, you are going to use the **chdir()** system call to change the directory to a target directory. However, if the user specifies more than one argument to the cd command, similar to bash, you should print the following error message and **do not perform any cd action**:
+The *help* command should print the list of commands as their appear above with the following header line added as the first line:
+
+The allowed commands are:
+
+The first 9 commands are programs that you are going to **spawn** as separate processes using the **posix_spawnp()** system call. An example program that spawns an echo command is provided in the repository: myspawn.c. By using this example program, you are going to write your own shell interpreter that can execute the commands above. Commands 10, 11, and 12 can be considered as built-in shell commands, which will **not** spawn a separate process. The handling of commands 11 and 12 by your program is trivial: return from the main function and print a list of commands, respectively. For the "cd" command, you are going to use the **chdir()** system call to change the directory to a target directory. However, if the user specifies more than one argument to the cd command, similar to bash, you should print the following error message and **do not perform any cd action**:
 
 -rsh: cd: too many arguments
 
