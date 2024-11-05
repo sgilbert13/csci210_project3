@@ -15,11 +15,11 @@ You are working for a company that hires interns regularly and develops software
 11: exit  
 12: help  
 
-The *help* command should print the list of commands as their appear above with the following header line added as the first line:
+The *help* command should print the list of commands as their appear above with the following header line added as the first line (in the standard output):
 
 The allowed commands are:
 
-The first 9 commands are programs that you are going to **spawn** as separate processes using the **posix_spawnp()** system call. An example program that spawns an echo command is provided in the repository: myspawn.c. By using this example program, you are going to write your own shell interpreter that can execute the commands above. Commands 10, 11, and 12 can be considered as built-in shell commands, which will **not** spawn a separate process. The handling of commands 11 and 12 by your program is trivial: return from the main function and print a list of commands, respectively. For the "cd" command, you are going to use the **chdir()** system call to change the directory to a target directory. However, if the user specifies more than one argument to the cd command, similar to bash, you should print the following error message and **do not perform any cd action**:
+The first 9 commands are programs that you are going to **spawn** as separate processes using the **posix_spawnp()** system call. An example program that spawns an echo command is provided in the repository: myspawn.c. By using this example program, you are going to write your own shell interpreter that can execute the commands above. Commands 10, 11, and 12 can be considered as built-in shell commands, which will **not** spawn a separate process. The handling of commands 11 and 12 by your program is trivial: return from the main function and print a list of commands, respectively. For the "cd" command, you are going to use the **chdir()** system call to change the directory to a target directory. However, if the user specifies more than one argument to the cd command, similar to bash, you should print the following error message (in standard output) and **do not perform any cd action**:
 
 -rsh: cd: too many arguments
 
@@ -27,7 +27,7 @@ For all the commands, you can assume that there will not be more than 20 command
 
 When the program is run, the shell prompt "rsh>" should be displayed. The shell should be in an infinite loop until the command **exit** is entered at which point the shell program should be terminated with a "return 0".
 
-If the user enters any dissallowed command or try to execute some other program, you should display the following message and return to the prompt:
+If the user enters any dissallowed command or try to execute some other program, you should display the following message (in standard output) and return to the prompt:
 
 NOT ALLOWED!
 
@@ -36,6 +36,8 @@ Similar to project2, a sample executable is provided for convenience in the solu
 You are not expected to support background processes, piping, or input/output redirection in this project.
 
 You can use the starter code rsh.c to complete the project. A Makefile is also provided for convenience.
+
+**Note:** All output (other than the "rsh>" prompt) produced by the "rsh" program should be made to the standard output. You do not need to control the outputs of the spawned processes, i.e., they can print to stdout or stderr.
 
 **Useful tips:**
  - You can use fgets() to get a line of input from the rsh prompt. Note that, fgets() also retains the end of line character at the end of the string. You can get rid of that by simply line[strlen(line)-1]='\0'.
