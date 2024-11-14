@@ -9,37 +9,38 @@
 
 extern char **environ;
 
-char *allowed[N] = {"cp","touch","mkdir","ls","pwd","cat","grep","chmod","diff","cd","exit","help"};
+char *allowed[N] = {
+    "cp", "touch", "mkdir", "ls", "pwd", "cat", "grep", "chmod", "diff", "cd", "exit", "help"
+};
 
-int isAllowed(const char*cmd) {
-	// TODO
-	// return 1 if cmd is one of the allowed commands
-	// return 0 otherwise
-	for (int i = 0; i < N; i++) {
+// Function to check if a command is allowed
+int isAllowed(const char *cmd) {
+    for (int i = 0; i < N; i++) {
         if (strcmp(cmd, allowed[i]) == 0) {
-            return 1;  // Command is allowed
+            return 1;
         }
     }
-	return 0;
+    return 0;
 }
 
 int main() {
     char line[256];
+    char *argv[21];  // Max 20 arguments (including the command itself)
+    int status;
 
     while (1) {
-        fprintf(stderr, "rsh> ");
+        fprintf(stderr, "rsh>");
 
-        // Read input
+        // Read the input line
         if (fgets(line, 256, stdin) == NULL) continue;
 
-        // Handle empty input
+        // Ignore empty lines
         if (strcmp(line, "\n") == 0) continue;
 
-        // Remove newline character at the end
+        // Remove newline character from fgets input
         line[strlen(line) - 1] = '\0';
 
-        // Tokenize the input into arguments
-        char *argv[21];  // Maximum 20 arguments + NULL
+        // Tokenize the input line into arguments
         int argc = 0;
         char *token = strtok(line, " ");
         while (token != NULL && argc < 20) {
@@ -50,52 +51,54 @@ int main() {
 
         // Check if the command is allowed
         if (!isAllowed(argv[0])) {
-            printf("NOT ALLOWED!\n");
+            fprintf(stderr, "NOT ALLOWED!\n");
             continue;
         }
 
-        // Handle built-in commands (cd, exit, help)
+        // Handle the "cd" command
         if (strcmp(argv[0], "cd") == 0) {
             if (argc > 2) {
-                printf("-rsh: cd: too many arguments\n");
-            } else if (argc == 2) {
+                fprintf(stderr, "-rsh: cd: too many arguments\n");
+            } else {
                 if (chdir(argv[1]) != 0) {
-                    perror("cd failed");
+                    perror("chdir");
                 }
             }
             continue;
-        } else if (strcmp(argv[0], "exit") == 0) {
-            return 0;  // Exit the shell
-        } else if (strcmp(argv[0], "help") == 0) {
+        }
+
+        // Handle the "exit" command
+        if (strcmp(argv[0], "exit") == 0) {
+            return 0;
+        }
+
+        // Handle the "help" command
+        if (strcmp(argv[0], "help") == 0) {
             printf("The allowed commands are:\n");
             for (int i = 0; i < N; i++) {
-                printf("%s\n", allowed[i]);
+                printf("%d: %s\n", i + 1, allowed[i]);
             }
             continue;
         }
 
-        // Spawn processes for allowed commands (1-9)
+        // For other commands (those that spawn processes)
         pid_t pid;
-        int status;
         posix_spawnattr_t attr;
+        posix_spawn_file_actions_t actions;
 
-        // Initialize spawn attributes
+        // Initialize posix_spawn attributes and file actions
         posix_spawnattr_init(&attr);
+        posix_spawn_file_actions_init(&actions);
 
-        if (posix_spawnp(&pid, argv[0], NULL, &attr, argv, environ) != 0) {
-            perror("posix_spawnp failed");
-        } else {
-            // Wait for the spawned process to finish
-            if (waitpid(pid, &status, 0) == -1) {
-                perror("waitpid failed");
-            }
-            if (WIFEXITED(status)) {
-                printf("Process exited with status %d\n", WEXITSTATUS(status));
-            }
+        // Spawn the command as a child process
+        if (posix_spawnp(&pid, argv[0], &actions, &attr, argv, environ) != 0) {
+            perror("posix_spawnp");
+            continue;
         }
 
-        // Clean up spawn attributes
-        posix_spawnattr_destroy(&attr);
+        // Wait for the child process to finish
+        waitpid(pid, &status, 0);
     }
+
     return 0;
 }
