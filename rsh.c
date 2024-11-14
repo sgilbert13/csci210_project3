@@ -17,37 +17,36 @@ int isAllowed(const char*cmd) {
 	// return 0 otherwise
 	for (int i = 0; i < N; i++) {
         if (strcmp(cmd, allowed[i]) == 0) {
-            return 1;
+            return 1;  // Command is allowed
         }
     }
 	return 0;
 }
 
 int main() {
-
-    // TODO
-    // Add variables as needed
-
     char line[256];
-    char *argv[21];
 
     while (1) {
+        fprintf(stderr, "rsh> ");
 
-	fprintf(stderr,"rsh>");
+        // Read input
+        if (fgets(line, 256, stdin) == NULL) continue;
 
-	if (fgets(line,256,stdin)==NULL) continue;
+        // Handle empty input
+        if (strcmp(line, "\n") == 0) continue;
 
-	if (strcmp(line,"\n")==0) continue;
+        // Remove newline character at the end
+        line[strlen(line) - 1] = '\0';
 
-	line[strlen(line)-1]='\0';
-
-	int argc = 0;
+        // Tokenize the input into arguments
+        char *argv[21];  // Maximum 20 arguments + NULL
+        int argc = 0;
         char *token = strtok(line, " ");
         while (token != NULL && argc < 20) {
             argv[argc++] = token;
             token = strtok(NULL, " ");
         }
-        argv[argc] = NULL;  // Null-terminate argument list
+        argv[argc] = NULL;  // Null-terminate the argument list
 
         // Check if the command is allowed
         if (!isAllowed(argv[0])) {
@@ -55,7 +54,7 @@ int main() {
             continue;
         }
 
-        // Handle built-in commands: cd, exit, help
+        // Handle built-in commands (cd, exit, help)
         if (strcmp(argv[0], "cd") == 0) {
             if (argc > 2) {
                 printf("-rsh: cd: too many arguments\n");
@@ -75,7 +74,7 @@ int main() {
             continue;
         }
 
-        // Spawn processes for the first 9 commands
+        // Spawn processes for allowed commands (1-9)
         pid_t pid;
         int status;
         posix_spawnattr_t attr;
@@ -97,8 +96,6 @@ int main() {
 
         // Clean up spawn attributes
         posix_spawnattr_destroy(&attr);
-    
-
     }
     return 0;
 }
